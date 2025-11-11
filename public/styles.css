@@ -1,0 +1,36 @@
+:root {
+    --main-background-color:#28384d;
+    --primary-color:#8bb3ec;
+    --secondary-color:#EAE5E3;
+    --tertiary-color:#E7E7EB;
+    --extra-color:black;
+    --lavender:#9EA3F5;
+}
+
+body {
+    background-color:var(--main-background-color);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    color: var(--secondary-color);
+    text-align:center;
+}
+
+h3 {
+    color: var(--primary-color);
+    text-align:center;
+}
+
+#api {
+    background-color: var(--secondary-color);
+    padding:10px;
+    border-radius: 5px;
+    width: 200px; 
+    margin: 0 auto;
+}
+
+#api a {
+    display:block;
+    text-align: center;
+}
