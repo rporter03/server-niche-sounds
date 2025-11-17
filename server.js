@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const Joi = require("joi");
 const app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
@@ -83,6 +84,44 @@ app.get("/api/artists/:id", (req, res)=>{
     res.send(artist);
 });
 
+app.post("/api/artists", upload.single("img"), (req,res)=>{
+    console.log("in post request");
+    const result = validateArtist(req.body);
+
+
+    if(result.error){
+        console.log("I have an error");
+        res.status(400).send(result.error.deatils[0].message);
+        return;
+    }
+
+    const artist = {
+        _id: artists.length+1,
+        artist:req.body.artist,
+        genre:req.body.genre,
+        Description:req.body.Description, 
+    };
+
+    //adding image
+    if(req.file){
+        artist.img = "images/" + req.file.filename;
+    }
+
+    artists.push(artist);
+    res.status(200).send(artist);
+});
+
+const validateArtist = (artist) => {
+    const schema = Joi.object({
+        _id:Joi.allow(""),
+        artist:Joi.string().min(3).required(),
+        genre:Joi.number().required().min(3),
+        Description:Joi.number().required().min(10),
+        img:Joi.allow(""),
+    });
+
+    return schema.validate(artist);
+};
 
 app.listen(3001, () => {
     console.log("Server is up and running");
