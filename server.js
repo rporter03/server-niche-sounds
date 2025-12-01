@@ -91,7 +91,7 @@ app.post("/api/artists", upload.single("img"), (req,res)=>{
 
     if(result.error){
         console.log("I have an error");
-        res.status(400).send(result.error.deatils[0].message);
+        res.status(400).send(result.error.details[0].message);
         return;
     }
 
@@ -115,8 +115,8 @@ const validateArtist = (artist) => {
     const schema = Joi.object({
         _id:Joi.allow(""),
         artist:Joi.string().min(3).required(),
-        genre:Joi.number().required().min(3),
-        Description:Joi.number().required().min(10),
+        genre:Joi.string().required().min(3),
+        Description:Joi.string().required().min(10),
         img:Joi.allow(""),
     });
 
