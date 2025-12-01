@@ -111,8 +111,35 @@ app.post("/api/artists", upload.single("img"), (req,res)=>{
     res.status(200).send(artist);
 });
 
+app.put("/api/artists/:id", upload.single("img"), (req,res)=>{
+    const artist = artists.find((a)=>a._id===parseInt(req.params.id));
+
+    if(!artist) {
+        res.status(404).send("The artist you wanted to edit is unavailable");
+        return;
+    }
+
+    const isValidUpdate = validateArtist(req.body);
+
+    if(isValidUpdate.error){
+        console.log("Invalid Info");
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
+
+    artist.artist = req.body.artist;
+    artist.genre = req.body.genre;
+    artist.Description = req.body.Description;
+
+    if(req.file){
+        artist.img = "images/" + req.file.filename;
+    }
+
+    res.status(200).send(artist);
+});
+
 app.delete("/api/artists/:id", (req,res)=>{
-    const artist = artists.find((h)=>h._id==parseInt(req.params.id));
+    const artist = artists.find((a)=>a._id===parseInt(req.params.id));
 
     if(!artist) {
         res.status(404).send("The artist you wanted to delete is unavailable");
