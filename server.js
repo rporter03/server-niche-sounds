@@ -111,6 +111,19 @@ app.post("/api/artists", upload.single("img"), (req,res)=>{
     res.status(200).send(artist);
 });
 
+app.delete("/api/artists/:id", (req,res)=>{
+    const artist = artists.find((h)=>h._id==parseInt(req.params.id));
+
+    if(!artist) {
+        res.status(404).send("The artist you wanted to delete is unavailable");
+        return;
+    }
+
+    const index = artists.indexOf(artist);
+    artists.splice(index, 1);
+    res.status(200).send(artist);
+});
+
 const validateArtist = (artist) => {
     const schema = Joi.object({
         _id:Joi.allow(""),
