@@ -123,7 +123,7 @@ app.put("/api/artists/:id", upload.single("img"), (req,res)=>{
 
     if(isValidUpdate.error){
         console.log("Invalid Info");
-        res.status(400).send(result.error.details[0].message);
+        res.status(400).send(isValidUpdate.error.details[0].message);
         return;
     }
 
