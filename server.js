@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const Joi = require("joi");
-const mongoose = required("mongoose");
+const mongoose = require("mongoose");
 const app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
