@@ -115,12 +115,12 @@ app.post("/api/artists", upload.single("img"), async(req,res)=>{
         return;
     }
 
-    const artist = {
+    const artist = new Artist ({
         // _id: artists.length+1    -   id is provided by db
         artist:req.body.artist,
         genre:req.body.genre,
         Description:req.body.Description, 
-    };
+    });
 
     //adding image
     if(req.file){
@@ -129,7 +129,7 @@ app.post("/api/artists", upload.single("img"), async(req,res)=>{
 
     /* artists.push(artist);
     res.status(200).send(artist); */
-    const newArtist = await artist.save();
+    const newArtist = await artist.save();  
     res.status(200).send(newArtist);
 });
 
