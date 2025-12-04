@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const Joi = require("joi");
+const mongoose = required("mongoose");
 const app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
   
   const upload = multer({ storage: storage });
 
-  let artists = [
+  /* let artists = [
     {
         "_id": 1,
         "artist": "Forth Wanderers",
@@ -68,14 +69,33 @@ const storage = multer.diskStorage({
         "Description": "Coming from Florida in the late 90s, Brittle Stars were an indie pop band with short, sweat, and dreamy sounding songs. They have released two albums and as of more recently, have released two singles as well. The band was composed of four members who each brought their own instrument to life in their sounds.",
         "img": "images/brittle-stars.webp"
     }
-]
+] */
+
+mongoose
+  .connect("mongodb+srv://porterclayton2003_db_user:SRUfH5ndmxyRvAw5@cluster0.pueteib.mongodb.net/")
+  .then(() => console.log("Connected to mongodb..."))
+  .catch((err) => console.error("could not connect ot mongodb...", err));
+
+const schema = new mongoose.Schema({
+  name: String,
+});
+
+const artistSchema = new mongoose.Schema({
+    artist:String,
+    genre:String,
+    Description:String,
+    img:String
+});
+
+const Artist = mongoose.model("Artist", artistSchema);
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.get("/api/artists/", (req, res)=>{
+app.get("/api/artists/", async(req, res)=>{
     console.log("in get request")
+    const artists = await Artist.find();
     res.send(artists);
 });
 
@@ -84,7 +104,7 @@ app.get("/api/artists/:id", (req, res)=>{
     res.send(artist);
 });
 
-app.post("/api/artists", upload.single("img"), (req,res)=>{
+app.post("/api/artists", upload.single("img"), async(req,res)=>{
     console.log("in post request");
     const result = validateArtist(req.body);
 
@@ -96,7 +116,7 @@ app.post("/api/artists", upload.single("img"), (req,res)=>{
     }
 
     const artist = {
-        _id: artists.length+1,
+        // _id: artists.length+1    -   id is provided by db
         artist:req.body.artist,
         genre:req.body.genre,
         Description:req.body.Description, 
@@ -107,17 +127,19 @@ app.post("/api/artists", upload.single("img"), (req,res)=>{
         artist.img = "images/" + req.file.filename;
     }
 
-    artists.push(artist);
-    res.status(200).send(artist);
+    /* artists.push(artist);
+    res.status(200).send(artist); */
+    const newArtist = await artist.save();
+    res.status(200).send(newArtist);
 });
 
-app.put("/api/artists/:id", upload.single("img"), (req,res)=>{
-    const artist = artists.find((a)=>a._id===parseInt(req.params.id));
+app.put("/api/artists/:id", upload.single("img"), async(req,res)=>{
+    /* const artist = artists.find((a)=>a._id===parseInt(req.params.id));
 
     if(!artist) {
         res.status(404).send("The artist you wanted to edit is unavailable");
         return;
-    }
+    } */
 
     const isValidUpdate = validateArtist(req.body);
 
@@ -127,27 +149,46 @@ app.put("/api/artists/:id", upload.single("img"), (req,res)=>{
         return;
     }
 
-    artist.artist = req.body.artist;
+    /* artist.artist = req.body.artist;
     artist.genre = req.body.genre;
     artist.Description = req.body.Description;
 
     if(req.file){
         artist.img = "images/" + req.file.filename;
+    } */
+
+    const fieldsToUpdate = {
+        artist:req.body.artist,
+        genre:req.body.genre,
+        Description:req.body.Description
     }
 
+    if(req.file) {
+        fieldsToUpdate.img = req.file.filename;
+    }
+
+    const success = await Artist.updateOne({_id:req.params.id}, fieldsToUpdate);
+
+    if(!success) {
+        res.status(404).send("Could not locate the artist to edit");
+        return;
+    }
+
+    const artist = await Artist.findById(req.params.id);
     res.status(200).send(artist);
 });
 
-app.delete("/api/artists/:id", (req,res)=>{
-    const artist = artists.find((a)=>a._id===parseInt(req.params.id));
+app.delete("/api/artists/:id", async(req,res)=>{
+    //const artist = artists.find((a)=>a._id===parseInt(req.params.id));
+    const artist = await Artist.findByIdAndDelete(req.params.id);
 
     if(!artist) {
         res.status(404).send("The artist you wanted to delete is unavailable");
         return;
     }
 
-    const index = artists.indexOf(artist);
-    artists.splice(index, 1);
+    /*const index = artists.indexOf(artist);
+    artists.splice(index, 1);*/
     res.status(200).send(artist);
 });
 
