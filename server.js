@@ -204,11 +204,6 @@ const validateArtist = (artist) => {
     return schema.validate(artist);
 };
 
-// fix refresh 404 error   
-app.get("*", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
 app.listen(3001, () => {
     console.log("Server is up and running");
 });
